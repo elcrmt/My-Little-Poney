@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'login_screen.dart';
+import 'profile_screen.dart';
+import 'horse_list_screen.dart';
+import '../utils/constants.dart';
 
 class HomeScreen extends StatelessWidget {
   final Map<String, dynamic> userData;
@@ -32,7 +35,7 @@ class HomeScreen extends StatelessWidget {
             CircleAvatar(
               radius: 50,
               backgroundImage: userData['profile_image'] != null
-                  ? NetworkImage(userData['profile_image'].toString())
+                  ? NetworkImage('${Constants.apiUrl}/${Constants.profileImagePath}/${userData['profile_image']}')
                   : null,
               child: userData['profile_image'] == null
                   ? Icon(Icons.person, size: 50)
@@ -75,9 +78,51 @@ class HomeScreen extends StatelessWidget {
                     _buildInfoRow('Email', userData['email'].toString()),
                     if (userData['phone_number'] != null)
                       _buildInfoRow('Phone', userData['phone_number'].toString()),
+                    if (userData['age'] != null)
+                      _buildInfoRow('Age', userData['age'].toString()),
+                    if (userData['ffe_profile_link'] != null)
+                      _buildInfoRow('FFE Profile', userData['ffe_profile_link'].toString()),
+                    if (userData['is_dp'] != null)
+                      _buildInfoRow('Demi-Pension', userData['is_dp'] == 1 ? 'Oui' : 'Non'),
                   ],
                 ),
               ),
+            ),
+            SizedBox(height: 24),
+            ElevatedButton.icon(
+              icon: Icon(Icons.edit),
+              label: Text('Modifier mon profil'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ProfileScreen(userData: userData),
+                  ),
+                ).then((value) {
+                  // Refresh the screen when returning from profile screen
+                  if (value != null && value == true) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Profil mis à jour avec succès')),
+                    );
+                  }
+                });
+              },
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              ),
+            ),
+            SizedBox(height: 8),
+            TextButton.icon(
+              icon: Icon(Icons.pets),
+              label: Text('Gérer mes chevaux'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HorseListScreen(userId: userData['id']),
+                  ),
+                );
+              },
             ),
           ],
         ),
@@ -92,7 +137,7 @@ class HomeScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 80,
+            width: 100,
             child: Text(
               '$label:',
               style: TextStyle(
